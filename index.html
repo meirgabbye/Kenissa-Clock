@@ -81,31 +81,30 @@ function updateTimes() {
   const now = new Date();
   const options = { weekday: 'long', month: 'long', day: 'numeric' };
   const englishDate = now.toLocaleDateString('en-US', options);
-  const hebrewDate = '18th Tammuz'; // static placeholder
+  const hebrewDate = '18th Tammuz'; // placeholder
 
   document.getElementById('date').innerHTML = `${englishDate}<br>${hebrewDate}`;
   document.getElementById('currentTime').textContent =
     now.toLocaleTimeString('en-US', { hour12: false });
 
-  const zmanim = new kosherZmanim.ZmanimCalendar({
-    date: now,
-    locationName: 'Synagogue',
-    latitude: latitude,
-    longitude: longitude,
-    timeZoneId: timeZoneId
-  });
+  const zmanimCalendar = new kosherZmanim.ZmanimCalendar(
+    new kosherZmanim.GeoLocation('Synagogue', latitude, longitude, 0, timeZoneId)
+  );
+  zmanimCalendar.setDate(now);
 
-  document.getElementById('alotHashachar').textContent =
-    formatTime(zmanim.getAlosHashachar());
-  document.getElementById('tzitzitTime').textContent =
-    formatTime(zmanim.getMisheyakir10point2Degrees());
-  document.getElementById('netzTime').textContent =
-    formatTime(zmanim.getSunrise());
+  const alot = zmanimCalendar.getAlosHashachar();
+  const tzitzit = zmanimCalendar.getMisheyakir10Point2Degrees();
+  const netz = zmanimCalendar.getSunrise();
+
+  document.getElementById('alotHashachar').textContent = 'Alot: ' + formatTime(alot);
+  document.getElementById('tzitzitTime').textContent = formatTime(tzitzit);
+  document.getElementById('netzTime').textContent = 'Netz: ' + formatTime(netz);
 }
 
 setInterval(updateTimes, 1000);
 updateTimes();
 </script>
+  
 
 </body>
 </html>
