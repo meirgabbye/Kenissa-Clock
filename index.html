@@ -106,7 +106,7 @@ function update() {
   const lat = 34.05380, lon = -118.38011;
 
   const alot = getSunTime(now, lat, lon, 106.1, true);       // Alot: sun @ -16.1° (90+16.1)
-  const tzitzit = getSunTime(now, lat, lon, 97.6, true);     // Tzitzit: sun @ -7.6° (90+7.6)
+  const tzitzit = getSunTime(now, lat, lon, 99, true);
   const netz = getSunTime(now, lat, lon, 90.833, true);      // Netz: sun @ +0.833°
 
   document.getElementById('alotHashachar').textContent = 'Alot: ' + netFmt(alot);
