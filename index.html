@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Synagogue Clock — Approximate</title>
+<title>Synagogue Clock — Magen Avraham</title>
 <style>
 body {
   font-family: 'Times New Roman', serif;
@@ -65,7 +65,7 @@ function getSunTimes(date, lat, lon) {
   const n = Math.floor((date - new Date(date.getFullYear(),0,0)) / 86400000);
   const lngHour = lon / 15;
 
-  function calcTime(rising) {
+  function calcTime(rising, angle) {
     const t = n + ((rising ? 6 : 18) - lngHour) / 24;
     const M = (0.9856 * t) - 3.289;
     let L = M + (1.916 * Math.sin(M * rad)) + (0.020 * Math.sin(2 * M * rad)) + 282.634;
@@ -76,9 +76,8 @@ function getSunTimes(date, lat, lon) {
     const RAhr = ((RA + (Lquadrant - RAquadrant)) / 15);
     const sinDec = 0.39782 * Math.sin(L*rad);
     const cosDec = Math.cos(Math.asin(sinDec));
-    const cosH = (Math.cos(90.833*rad) - sinDec*Math.sin(lat*rad)) / (cosDec*Math.cos(lat*rad));
-    if (cosH > 1) return null;
-    if (cosH < -1) return null;
+    const cosH = (Math.cos(angle*rad) - sinDec*Math.sin(lat*rad)) / (cosDec*Math.cos(lat*rad));
+    if (cosH > 1 || cosH < -1) return null;
     const H = (rising ? 360 - Math.acos(cosH)/rad : Math.acos(cosH)/rad) / 15;
     const T = H + RAhr - (0.06571*t) - 6.622;
     let UT = (T - lngHour) % 24;
@@ -91,8 +90,10 @@ function getSunTimes(date, lat, lon) {
   }
 
   return {
-    sunrise: calcTime(true),
-    sunset: calcTime(false)
+    sunrise: calcTime(true, 90.833),     // netz
+    sunset: calcTime(false, 90.833),     // shkiah
+    dawn: calcTime(true, 108),           // alot hashachar ~ 72 min before netz
+    dusk: calcTime(false, 96)           // tzeit ~ 40 min after shkiah
   };
 }
 
@@ -108,13 +109,17 @@ function update() {
   const lat = 34.05380, lon = -118.38011;
   const sun = getSunTimes(now, lat, lon);
 
-  if (sun.sunrise) {
-    const alot = new Date(sun.sunrise.getTime() - 72*60000);
-    const tzitzit = new Date(sun.sunrise.getTime() - 30*60000);
+  if (sun.dawn && sun.dusk) {
+    const dayLengthMs = sun.dusk - sun.dawn;
+    const shaahZmanit = dayLengthMs / 12;
+
+    const alot = sun.dawn;
+    const tzitzit = new Date(sun.dawn.getTime() + (3 * shaahZmanit / 60)); 
+    const netz = sun.sunrise;
 
     document.getElementById('alotHashachar').textContent = 'Alot: ' + fmt(alot);
     document.getElementById('tzitzitTime').textContent = fmt(tzitzit);
-    document.getElementById('netzTime').textContent = 'Netz: ' + fmt(sun.sunrise);
+    document.getElementById('netzTime').textContent = 'Netz: ' + fmt(netz);
   } else {
     document.getElementById('alotHashachar').textContent = 'Alot: --:--';
     document.getElementById('tzitzitTime').textContent = '--:--';
