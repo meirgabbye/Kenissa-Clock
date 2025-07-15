@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Synagogue Clock</title>
-<script src="https://cdn.jsdelivr.net/npm/kosher-zmanim/dist/kosher-zmanim.min.js"></script>
+<script src="https://unpkg.com/kosher-zmanim@4.1.0/dist/kosher-zmanim.min.js"></script>
 <style>
   body {
     font-family: 'Times New Roman', serif;
@@ -67,7 +67,7 @@
 const latitude = 34.05380;
 const longitude = -118.38011;
 const elevation = 0;
-const timeZoneId = 'America/Los_Angeles';
+const timeZoneId = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Los_Angeles';
 
 function pad(num) {
   return String(num).padStart(2, '0');
@@ -96,7 +96,7 @@ function updateTimes() {
     timeZoneId
   );
 
-  const zmanimCalendar = new kosherZmanim.ComplexZmanimCalendar(geo);
+  const zmanimCalendar = new kosherZmanim.ZmanimCalendar(geo);
   zmanimCalendar.setDate(now);
 
   const alot = zmanimCalendar.getAlosHashachar();
@@ -111,11 +111,6 @@ function updateTimes() {
 setInterval(updateTimes, 1000);
 updateTimes();
 </script>
-
-</body>
-</html>
-
-  
 
 </body>
 </html>
