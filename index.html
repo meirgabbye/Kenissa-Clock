@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Synagogue Clock</title>
+<script src="https://cdn.jsdelivr.net/npm/kosher-zmanim/dist/kosher-zmanim.min.js"></script>
 <style>
   body {
     font-family: 'Times New Roman', serif;
@@ -35,7 +36,7 @@
     margin: 10px 0;
   }
   .tzitzit-box {
-    font-size: 2em;
+    font-size: 4em;
     margin: 10px 0;
     background: #ccc;
     border: 5px solid black;
@@ -53,38 +54,58 @@
 
 <div class="date" id="date">Monday July 14th<br>18th Tammuz</div>
 
-<div class="zman" id="alotHashachar">4:57</div>
+<div class="zman" id="alotHashachar">Alot: --:--</div>
 
 <div class="tzitzit-box">
   <div>ציצית</div>
-  <div id="tzitzitTime">5:25</div>
+  <div id="tzitzitTime">--:--</div>
 </div>
 
-<div class="netz" id="netzTime" style="font-size:20vw;">6:05:00</div>
+<div class="netz" id="netzTime" style="font-size:15vw;">Netz: --:--</div>
 
 <script>
-function updateTime() {
-  const now = new Date();
-  document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-US', {hour12: false});
+const latitude = 34.05380;
+const longitude = -118.38011;
+const timeZoneId = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+function pad(num) {
+  return String(num).padStart(2, '0');
+}
+
+function formatTime(date) {
+  if (!date) return '--:--';
+  return pad(date.getHours()) + ':' + pad(date.getMinutes());
+}
+
+function updateTimes() {
+  const now = new Date();
   const options = { weekday: 'long', month: 'long', day: 'numeric' };
   const englishDate = now.toLocaleDateString('en-US', options);
-  const hebrewDate = '18th Tammuz';
+  const hebrewDate = '18th Tammuz'; // static placeholder
 
   document.getElementById('date').innerHTML = `${englishDate}<br>${hebrewDate}`;
+  document.getElementById('currentTime').textContent =
+    now.toLocaleTimeString('en-US', { hour12: false });
+
+  const zmanim = new kosherZmanim.ZmanimCalendar({
+    date: now,
+    locationName: 'Synagogue',
+    latitude: latitude,
+    longitude: longitude,
+    timeZoneId: timeZoneId
+  });
+
+  document.getElementById('alotHashachar').textContent =
+    formatTime(zmanim.getAlosHashachar());
+  document.getElementById('tzitzitTime').textContent =
+    formatTime(zmanim.getMisheyakir10point2Degrees());
+  document.getElementById('netzTime').textContent =
+    formatTime(zmanim.getSunrise());
 }
 
-function loadMockZmanim() {
-  document.getElementById('alotHashachar').textContent = '4:57';
-  document.getElementById('tzitzitTime').textContent = '5:25';
-  document.getElementById('netzTime').textContent = '6:05:00';
-}
-
-setInterval(updateTime, 1000);
-updateTime();
-loadMockZmanim();
+setInterval(updateTimes, 1000);
+updateTimes();
 </script>
 
-<!-- Final version ready for packaging -->
 </body>
 </html>
