@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Synagogue Clock</title>
-<script src="https://unpkg.com/kosher-zmanim@4.1.0/dist/kosher-zmanim.min.js"></script>
+
+<!-- kosher-zmanim loaded first -->
+<script src="https://cdn.jsdelivr.net/npm/kosher-zmanim@4.1.0/dist/kosher-zmanim.min.js"></script>
+
 <style>
   body {
     font-family: 'Times New Roman', serif;
@@ -108,8 +111,11 @@ function updateTimes() {
   document.getElementById('netzTime').textContent = 'Netz: ' + formatTime(netz);
 }
 
-setInterval(updateTimes, 1000);
-updateTimes();
+// wait until kosherZmanim is loaded
+window.addEventListener('load', () => {
+  setInterval(updateTimes, 1000);
+  updateTimes();
+});
 </script>
 
 </body>
